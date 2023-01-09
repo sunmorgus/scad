@@ -1,39 +1,76 @@
-wallThick = 2;
-cutterMinimum = 0.4;
-baseHeight = 2;
-height = 15;
-flangeWidth = 6;
+/**
+ * Original script from http://www.thingiverse.com/thing:28882
+ */
 
-minkowski(){
-outline();
-cylinder(r1 = wallThick/3, r2 = cutterMinimum/3, h = height);
+// Text for the cutter.
+cutter_text = "Au";
+
+// Height of the cutter in mm.
+cutter_size = 64;
+
+// Font to use for the cutter, in the style "<Font Name>:style=<Font Style>".
+// See http://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Text#Using_fonts
+cutter_font = "Arial Black:style=Bold";
+
+// Thickness of the cutter in mm.
+cutter_thickness = 1.75;
+
+// Height of the flange in mm.
+flange_height = 2;
+
+// Height of the cutter in mm, in addition to the flange height.
+cutter_height = 10;
+
+// Width of the flange in mm.
+flange_width = 6;
+
+cutterMinimum = 1.75;
+
+mirror ([ 1, 0, 0 ])
+{
+  minkowski ()
+  {
+    outline ();
+    cylinder (r1 = cutter_thickness / 3, r2 = cutterMinimum / 3,
+              h = cutter_height);
+  };
+
+  flange ();
 };
-//%cube([.5, .5, height*3], true);
 
-flange();
+module
+flange ()
+{
+  difference ()
+  {
+    minkowski ()
+    {
+      baseShape (h = flange_height / 3);
+      cylinder (r = flange_width, h = flange_height / 3);
+    };
 
-module flange(){
-	difference(){
-	minkowski(){
-	baseShape(baseHeight/3);
-	cylinder(r = flangeWidth, h = baseHeight/3);
-	}
-	translate([0,0,-0.01])baseShape(baseHeight*1.1);
-	};
+    translate ([ 0, 0, -0.01 ]) baseShape (h = flange_height * 1.1);
+  };
 }
 
+module
+outline ()
+{
+  difference ()
+  {
+    minkowski ()
+    {
+      baseShape (h = flange_height / 3);
+      cylinder (r = cutterMinimum / 3, h = flange_height / 3);
+    }
 
-
-module outline(){
-	difference(){
-	minkowski(){
-	baseShape(baseHeight/3);
-	cylinder(r = cutterMinimum/3, h = baseHeight/3);
-	}
-	translate([0,0,-0.01])baseShape(baseHeight*1.1);
-	};
+    translate ([ 0, 0, -0.01 ]) baseShape (h = flange_height * 1.1);
+  };
 };
 
-module baseShape(H){
-linear_extrude(file = "pi.dxf", height=H);
+module
+baseShape (h)
+{
+  linear_extrude (height = h)
+      text (text = cutter_text, size = cutter_size, font = cutter_font);
 }
